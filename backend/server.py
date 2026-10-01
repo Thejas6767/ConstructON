@@ -101,19 +101,28 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# 🛡️ CORS Middleware MUST be added before routers
-raw_cors = os.environ.get('CORS_ORIGINS', os.environ.get('CORS', '*'))
+# ============================================================
+# CORS CONFIGURATION
+# ============================================================
 
-if raw_cors.strip() == '*':
+raw_cors = os.environ.get("CORS_ORIGINS", "").strip()
+
+if raw_cors:
+    origins = [
+        origin.strip().rstrip("/")
+        for origin in raw_cors.split(",")
+        if origin.strip()
+    ]
+else:
     origins = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "https://construct-ons-six.vercel.app"
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+
+        # Current Vercel frontend
+        "https://construct-on-7sv5.vercel.app",
     ]
-else:
-    origins = [origin.strip() for origin in raw_cors.split(',') if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
